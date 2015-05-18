@@ -20,13 +20,14 @@ public class HeartProgressBarActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_heart_progress_bar);
         bar=(HeartProgressBar)findViewById(R.id.bar);
+        progress=bar.getProgress();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 progress+=5;
                 bar.setProgress(progress);
                 if(!bar.isFinish()) {
-                    handler.postDelayed(this, 10);
+                    handler.postDelayed(this, 500);
                 }else{
                     handler.removeCallbacks(this);
                 }

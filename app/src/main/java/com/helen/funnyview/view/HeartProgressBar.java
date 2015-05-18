@@ -1,6 +1,7 @@
 package com.helen.funnyview.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -17,12 +18,11 @@ import com.helen.funnyview.R;
  */
 public class HeartProgressBar extends View{
     private Bitmap mHeartBitmap;//空心图片
-    private Bitmap mHeartedBitmap;
+    private Bitmap mHeartedBitmap;//实心图
     private Paint mPaint=new Paint(Paint.ANTI_ALIAS_FLAG);
     private int progress=0;//当前进度
     private int max=100;//最大进度
     private boolean isFinish=false;//是否填充完成
-    private boolean isScale=false;//图片是否缩放
     private boolean isAutoFill=false;//是否自动填充
     public HeartProgressBar(Context context) {
         super(context);
@@ -32,6 +32,13 @@ public class HeartProgressBar extends View{
     public HeartProgressBar(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+        TypedArray a=context.obtainStyledAttributes(attrs,R.styleable.HeartProgressBar);
+        progress=a.getInteger(R.styleable.HeartProgressBar_progress,0);
+        max=a.getInteger(R.styleable.HeartProgressBar_max,100);
+        if(max<=0){
+            max=100;
+        }
+        a.recycle();
     }
 
     public HeartProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -49,19 +56,6 @@ public class HeartProgressBar extends View{
     }
     @Override
     protected void onDraw(Canvas canvas) {
-        /*if(mHeartBitmap==null){
-            mHeartBitmap=BitmapFactory.decodeResource(getResources(), R.mipmap.heart);
-            mHeartBitmap=Bitmap.createScaledBitmap(mHeartBitmap,getWidth(),getHeight(),true);
-        }
-        if(mHeartedBitmap==null){
-            mHeartedBitmap= BitmapFactory.decodeResource(getResources(), R.mipmap.hearted);
-            mHeartedBitmap=Bitmap.createScaledBitmap(mHeartedBitmap, getWidth(), getHeight(), true);
-        }*/
-        /*if(!isScale) {
-            isScale=true;
-            mHeartBitmap = Bitmap.createScaledBitmap(mHeartBitmap, getWidth(), getHeight(), true);
-            mHeartedBitmap = Bitmap.createScaledBitmap(mHeartedBitmap, getWidth(), getHeight(), true);
-        }*/
         final int width=getWidth();//mHeartBitmap.getWidth();
         final int height=getHeight();//mHeartBitmap.getHeight();
         float percent=progress*1.0f/max;//进度百分比
@@ -69,8 +63,11 @@ public class HeartProgressBar extends View{
             percent=1;
         }
         canvas.save();
+        //绘制空心图
         canvas.drawBitmap(mHeartBitmap, 0, 0,mPaint);
+        //计算绘制实心图的范围
         canvas.clipRect(0, height * (1 - percent), width, height);
+        //绘制实心图
         canvas.drawBitmap(mHeartedBitmap, 0, 0, mPaint);
         canvas.restore();
     }
@@ -98,6 +95,8 @@ public class HeartProgressBar extends View{
         }
         return size;
     }
+
+
     /**
      * 设置当前进度
      * @param progress
@@ -106,19 +105,37 @@ public class HeartProgressBar extends View{
         if(isAutoFill) return;
         this.progress = progress;
         if(!isFinish) {
+
             invalidate();
         }
         if(progress>=max){
             isFinish=true;
         }
     }
-
+    public int getProgress() {
+        return progress;
+    }
     /**
      * 是否完成
      * @return
      */
     public boolean isFinish() {
         return isFinish;
+    }
+
+    public boolean isAutoFill() {
+        return isAutoFill;
+    }
+
+    /**
+     * 设置最大进度值
+     */
+    public void setMax(int max) {
+        this.max = max;
+    }
+
+    public int getMax() {
+        return max;
     }
 
     /**
